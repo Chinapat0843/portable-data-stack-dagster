@@ -15,18 +15,7 @@ services:
       timeout: 60s
       retries: 5
       start_period: 80s
-  generator:
-    build:
-      context: .
-      dockerfile: ./generator/Dockerfile
-      args:
-        POSTGRES_USER: $POSTGRES_USER
-        POSTGRES_PASSWORD: $POSTGRES_PASSWORD
-    volumes:
-      - ./shared:/shared
-    depends_on:
-      oltp:
-        condition: service_healthy
+  
   dagster-dbt:
     build:
       context: .
@@ -37,27 +26,9 @@ services:
         POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
         DAGSTER_HOME: /dagster-dbt/postcard_company_dm
     volumes:
-        - ./shared:/shared
         - ./dagster-dbt/postcard_company_dm:/dagster-dbt/postcard_company_dm
     ports:
         - "3000:3000"
     command: dagit -h 0.0.0.0
-    depends_on:
-      generator:
-        condition: service_completed_successfully
-  superset:
-    build:
-      context: .
-      dockerfile: ./superset/Dockerfile
-      args:
-        POSTGRES_USER: $POSTGRES_USER
-        POSTGRES_PASSWORD: $POSTGRES_PASSWORD
-        SUPERSET_ADMIN: $SUPERSET_ADMIN
-        SUPERSET_PASSWORD: $SUPERSET_PASSWORD
-    ports:
-        - "8088:8088"
-    command:     gunicorn --bind  "0.0.0.0:8088" --access-logfile '-' --error-logfile '-' --workers 1 --worker-class gthread --threads 20 --timeout 60 --limit-request-line 0 --limit-request-field_size 0 "superset.app:create_app()"
-    volumes:
-        - ./shared/db:/app/superset_home/db
-    depends_on:
-      - dagster-dbt
+    
+ 

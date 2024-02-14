@@ -9,7 +9,8 @@ setup(
         "duckdb==0.8.1",
         "dbt-core==1.4.7",
         "dbt-duckdb==1.4.1",
-        "dagster-duckdb==0.20.10"
+        "dagster-duckdb==0.20.10",
+        "pendulum<3.0"
     ],
     extras_require={"dev": ["dagit", "pytest"]},
 )
